@@ -15,9 +15,3 @@ An interactive **mock theory test platform** designed to help users prepare for 
 - **Frontend:** HTML, CSS, JavaScript
 - **Libraries:** XLSX.js (for exporting results to Excel)
 - **Framework:** Vanilla JavaScript
-
-## 🚀 Getting Started
-### 1️⃣ Clone the Repository  
-```sh
-git clone https://github.com/yourusername/dvla-mock-theory.git
-cd dvla-mock-theory
