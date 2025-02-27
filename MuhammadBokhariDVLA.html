@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DVLA Mock Theory Test</title>
+  <style>
+    /* CSS */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f7f3; /* Default light theme */
+      margin: 0;
+      padding: 0;
+      color: #3e3e3e; /* Default text colour */
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 30px;
+      background: #fffdf6; /* Default light theme background ex muh */
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      text-align: center; /* Center-align all content */
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #4a4a4a; /* Default heading color */
+      transition: color 0.3s ease;
+    }
+
+    p {
+      text-align: center;
+      color: #666; /* Default paragraph color */
+      transition: color 0.3s ease;
+    }
+
+    .error {
+      color: #d32f2f; /* Red error messages */
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555;
+      text-align: left; /* Align labels to the left */
+      transition: color 0.3s ease;
+    }
+
+    input[type="text"] {
+      width: calc(100% - 20px); /* Ensure inputs fit within the container */
+      padding: 12px;
+      margin-top: 5px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      transition: border-color 0.3s ease;
+      box-sizing: border-box; /* Prevent overflow */
+    }
+
+    input[type="text"]:focus {
+      border-color: #a3c2c2; /* Soft teal focus effect */
+      outline: none;
+    }
+
+    button {
+      display: inline-block;
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #a3c2c2; /* Default button color */
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      box-sizing: border-box; /* Prevent overflow */
+    }
+
+    button:hover {
+      transform: scale(1.02); /* Slight scaling effect */
+    }
+
+    /* Dark Mode Styles */
+    body.dark-mode {
+      background-color: #121212; /* Dark background */
+      color: #e0e0e0; /* Light text */
+    }
+
+    body.dark-mode .container {
+      background: #1e1e1e; /* Dark container background */
+      color: #e0e0e0; /* Light text */
+    }
+
+    body.dark-mode h1,
+    body.dark-mode h2,
+    body.dark-mode p,
+    body.dark-mode label {
+      color: #e0e0e0; /* Light text for dark mode */
+    }
+
+    body.dark-mode button {
+      background-color: #333; /* Dark button */
+    }
+
+    /* Question Card Design */
+    .question-card {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .question-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .question-card h3 {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .options label {
+      display: block;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 6px;
+      background-color: #fafafa;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .options label:hover {
+      background-color: #e8f3f3;
+      transform: scale(1.02);
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #ddd;
+      border-radius: 5px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: #a3c2c2;
+      transition: width 0.3s ease;
+    }
+
+    /* Timer Styles */
+    .timer {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #d32f2f;
+    }
+
+    /* Quit Button */
+    #quit-button {
+      margin-top: 20px;
+      background-color: #d32f2f; /* Red button for quitting */
+    }
+
+    /* Settings Panel */
+    .settings-bar {
+      position: fixed;
+      top: 50px;
+      right: -300px; /* Hidden by default */
+      background: #fffdf6;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      text-align: left;
+      transition: right 0.3s ease;
+      width: 300px;
+    }
+
+    .settings-bar.active {
+      right: 10px; /* Slide in when active */
+    }
+
+    .settings-bar h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .settings-bar button {
+      width: auto;
+      margin: 5px 0;
+      padding: 8px 12px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Settings Button -->
+  <button id="toggle-settings" style="position: fixed; top: 10px; right: 10px; padding: 10px 15px; background-color: #a3c2c2; color: white; border: none; border-radius: 8px; cursor: pointer;">
+    ⚙️ Settings
+  </button>
+
+  <!-- Settings Bar -->
+  <div class="settings-bar" id="settings-bar">
+    <h3>Settings</h3>
+    <button id="mode-normal">Normal Mode</button>
+    <button id="mode-timed">Timed Mode (30s)</button>
+    <label for="custom-timer">Custom Timer (seconds):</label>
+    <input type="number" id="custom-timer" min="10" value="30">
+    <button id="theme-light">Light Theme</button>
+    <button id="theme-dark">Dark Theme</button>
+    <button id="color-red">Red Buttons</button>
+    <button id="color-green">Green Buttons</button>
+    <button id="color-blue">Blue Buttons</button>
+  </div>
+
+  <div class="container">
+    <h1>DVLA Mock Theory Test</h1>
+    <p>Made by Muhammad Bokhari 19165120</p>
+
+    <!-- User Details Section -->
+    <div id="user-details">
+      <label for="first-name">First Name:</label>
+      <input type="text" id="first-name" placeholder="Enter your first name">
+      <label for="surname">Surname:</label>
+      <input type="text" id="surname" placeholder="Enter your surname">
+      <button id="start-test">Start Test</button>
+      <button id="quit-button">Quit</button>
+      <p id="error-message" class="error"></p>
+    </div>
+
+    <!-- Test Section -->
+    <div id="test-section" style="display: none;">
+      <h2>Mock Theory Test</h2>
+      <p id="question-counter">Question 1 of 5</p>
+      <div class="progress-bar">
+        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+      </div>
+      <div id="question-container"></div>
+      <div id="timer" class="timer" style="display: none;">Time Left: <span id="time-left">30</span>s</div>
+      <button id="submit-test" style="display: none;">Submit Test</button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="results-section" style="display: none;">
+      <h2>Test Results</h2>
+      <p id="result-message"></p>
+      <div id="feedback-sheet"></div>
+      <button id="save-results">Save Results to Excel</button>
+      <button id="retake-test">Retake Test</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    // JavaScript
+
+    // Questions data
+    const questions = [
+      {
+        question: "What is the national speed limit for cars on a single carriageway?",
+        options: ["30 mph", "50 mph", "60 mph", "70 mph"],
+        answer: "60 mph"
+      },
+      {
+        question: "When should you use your horn in a built-up area?",
+        options: ["To greet friends", "To warn others of danger", "To express frustration", "To signal your arrival"],
+        answer: "To warn others of danger"
+      },
+      {
+        question: "What does this sign mean?",
+        options: ["No entry", "No stopping", "No overtaking", "No U-turn"],
+        answer: "No entry"
+      },
+      {
+        question: "What is the minimum legal tread depth for car tyres?",
+        options: ["1.0 mm", "1.6 mm", "2.0 mm", "2.5 mm"],
+        answer: "1.6 mm"
+      },
+      {
+        question: "What should you do if you see a pedestrian waiting at a zebra crossing?",
+        options: ["Stop and let them cross", "Sound your horn", "Speed up to pass quickly", "Ignore them"],
+        answer: "Stop and let them cross"
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let userAnswers = [];
+    let timerInterval;
+    let timeLeft = 30;
+
+    // DOM Elements
+    const userDetailsSection = document.getElementById("user-details");
+    const firstNameInput = document.getElementById("first-name");
+    const surnameInput = document.getElementById("surname");
+    const errorMessage = document.getElementById("error-message");
+    const startTestButton = document.getElementById("start-test");
+
+    const testSection = document.getElementById("test-section");
+    const questionContainer = document.getElementById("question-container");
+    const questionCounter = document.getElementById("question-counter");
+    const progressBarFill = document.getElementById("progress-bar-fill");
+    const timerElement = document.getElementById("time-left");
+    const submitTestButton = document.getElementById("submit-test");
+
+    const resultsSection = document.getElementById("results-section");
+    const resultMessage = document.getElementById("result-message");
+    const feedbackSheet = document.getElementById("feedback-sheet");
+    const saveResultsButton = document.getElementById("save-results");
+    const retakeTestButton = document.getElementById("retake-test");
+
+    const toggleSettingsButton = document.getElementById("toggle-settings");
+    const settingsBar = document.getElementById("settings-bar");
+    const customTimerInput = document.getElementById("custom-timer");
+
+    // Start Test
+    startTestButton.addEventListener("click", () => {
+      const firstName = firstNameInput.value.trim();
+      const surname = surnameInput.value.trim();
+
+      if (!/^[a-zA-Z\s\-]+$/.test(firstName) || !/^[a-zA-Z\s\-]+$/.test(surname)) {
+        errorMessage.textContent = "Please enter valid names (letters, spaces, and hyphens only).";
+        return;
+      }
+
+      errorMessage.textContent = "";
+      userDetailsSection.style.display = "none";
+      testSection.style.display = "block";
+
+      if (document.body.classList.contains("timed-mode")) {
+        timeLeft = parseInt(customTimerInput.value) || 30;
+        startTimer();
+      } else {
+        loadQuestion();
+      }
+    });
+
+    // Load Question
+    function loadQuestion() {
+      const questionData = questions[currentQuestionIndex];
+      questionContainer.innerHTML = `
+        <div class="question-card">
+          <h3>${questionData.question}</h3>
+          <div class="options">
+            ${questionData.options.map((option, index) => `
+              <label>
+                <input type="radio" name="answer" value="${option}">
+                ${option}
+              </label>
+            `).join("")}
+          </div>
+        </div>
+      `;
+
+      questionCounter.textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+      updateProgressBar();
+      if (currentQuestionIndex === questions.length - 1) {
+        submitTestButton.style.display = "block";
+      }
+    }
+
+    // Update Progress Bar
+    function updateProgressBar() {
+      const progressPercentage = ((currentQuestionIndex + 1) / questions.length) * 100;
+      progressBarFill.style.width = `${progressPercentage}%`;
+    }
+
+    // Next Question
+    questionContainer.addEventListener("change", (e) => {
+      const selectedAnswer = e.target.value;
+      userAnswers[currentQuestionIndex] = selectedAnswer;
+
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+      }
+    });
+
+    // Submit Test
+    submitTestButton.addEventListener("click", () => {
+      clearInterval(timerInterval);
+      calculateScore();
+      showResults();
+    });
+
+    // Calculate Score
+    function calculateScore() {
+      score = 0;
+      questions.forEach((question, index) => {
+        if (userAnswers[index] === question.answer) {
+          score++;
+        }
+      });
+    }
+
+    // Show Results
+    function showResults() {
+      testSection.style.display = "none";
+      resultsSection.style.display = "block";
+
+      const percentage = (score / questions.length) * 100;
+      resultMessage.innerHTML = `
+        <p>Name: ${firstNameInput.value.trim()} ${surnameInput.value.trim()}</p>
+        <p>Total Score: ${score} out of ${questions.length}</p>
+        <p>Percentage: ${percentage.toFixed(2)}%</p>
+      `;
+
+      // Generate Feedback Sheet
+      let feedbackHTML = "<h3>Feedback Sheet</h3>";
+      questions.forEach((question, index) => {
+        const userAnswer = userAnswers[index];
+        const correctAnswer = question.answer;
+        if (userAnswer === correctAnswer) {
+          feedbackHTML += `<p><strong>Question ${index + 1}:</strong> Correct! You answered "${userAnswer}".</p>`;
+        } else {
+          feedbackHTML += `<p><strong>Question ${index + 1}:</strong> Incorrect. You answered "${userAnswer || 'Not answered'}". The correct answer is "${correctAnswer}".</p>`;
+        }
+      });
+      feedbackSheet.innerHTML = feedbackHTML;
+    }
+
+    // Save Results to Excel
+    saveResultsButton.addEventListener("click", () => {
+      const firstName = firstNameInput.value.trim();
+      const surname = surnameInput.value.trim();
+
+      // Create Excel Data
+      const data = [
+        ["Name", "Score", "Percentage"],
+        [`${firstName} ${surname}`, score, `${((score / questions.length) * 100).toFixed(2)}%`]
+      ];
+
+      // Add Feedback to Excel
+      data.push(["", "", ""]);
+      data.push(["Feedback Sheet", "", ""]);
+      questions.forEach((question, index) => {
+        const userAnswer = userAnswers[index];
+        const correctAnswer = question.answer;
+        if (userAnswer === correctAnswer) {
+          data.push([`Q${index + 1}: Correct`, `Your Answer: ${userAnswer}`, `Correct Answer: ${correctAnswer}`]);
+        } else {
+          data.push([`Q${index + 1}: Incorrect`, `Your Answer: ${userAnswer || 'Not answered'}`, `Correct Answer: ${correctAnswer}`]);
+        }
+      });
+
+      // Generate Excel File
+      const worksheet = XLSX.utils.aoa_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Results");
+      XLSX.writeFile(workbook, `${firstName}_${surname}_results.xlsx`);
+    });
+
+    // Retake Test
+    retakeTestButton.addEventListener("click", () => {
+      if (confirm("Are you sure you want to restart the test? All progress will be lost.")) {
+        clearInterval(timerInterval);
+        currentQuestionIndex = 0;
+        score = 0;
+        userAnswers = [];
+        userDetailsSection.style.display = "block";
+        testSection.style.display = "none";
+        resultsSection.style.display = "none";
+        firstNameInput.value = "";
+        surnameInput.value = "";
+        timerElement.parentElement.style.display = "none";
+      }
+    });
+
+    // Timer Logic
+    function startTimer() {
+      timeLeft = parseInt(customTimerInput.value) || 30;
+      timerElement.parentElement.style.display = "block";
+      timerElement.textContent = timeLeft;
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerElement.textContent = timeLeft;
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          alert("Time's up! Moving to the next question.");
+          nextQuestion();
+        }
+      }, 1000);
+
+      loadQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        loadQuestion();
+        startTimer();
+      } else {
+        submitTestButton.click();
+      }
+    }
+
+    // Settings Bar Functionality
+    toggleSettingsButton.addEventListener("click", () => {
+      settingsBar.classList.toggle("active");
+    });
+
+    document.getElementById("mode-normal").addEventListener("click", () => {
+      document.body.classList.remove("timed-mode");
+      alert("Switched to Normal Mode.");
+    });
+
+    document.getElementById("mode-timed").addEventListener("click", () => {
+      document.body.classList.add("timed-mode");
+      alert("Switched to Timed Mode.");
+    });
+
+    document.getElementById("theme-light").addEventListener("click", () => {
+      document.body.classList.remove("dark-mode");
+      alert("Switched to Light Theme.");
+    });
+
+    document.getElementById("theme-dark").addEventListener("click", () => {
+      document.body.classList.add("dark-mode");
+      alert("Switched to Dark Theme.");
+    });
+
+    document.getElementById("color-red").addEventListener("click", () => {
+      document.querySelectorAll("button").forEach(button => {
+        button.style.backgroundColor = "#d32f2f"; // Red
+      });
+      alert("Buttons are now Red.");
+    });
+
+    document.getElementById("color-green").addEventListener("click", () => {
+      document.querySelectorAll("button").forEach(button => {
+        button.style.backgroundColor = "#2e7d32"; // Green
+      });
+      alert("Buttons are now Green.");
+    });
+
+    document.getElementById("color-blue").addEventListener("click", () => {
+      document.querySelectorAll("button").forEach(button => {
+        button.style.backgroundColor = "#007bff"; // Blue
+      });
+      alert("Buttons are now Blue.");
+    });
+
+    // Quit Button
+    document.getElementById("quit-button").addEventListener("click", () => {
+      if (confirm("Are you sure you want to quit?")) {
+        window.close(); // Close the browser tab or window
+      }
+    });
+  </script>
+</body>
+</html>
